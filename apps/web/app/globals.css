@@ -1,4 +1,48 @@
 @import "tailwindcss";
 
 /* Point Tailwind v4 to scan shared workspace components */
-@source "../../../packages/ui/src/**/*.{ts,tsx}";
+@source "../../../../packages/ui/src/**/*.{ts,tsx}";
+
+
+@theme {
+  --color-bg-page: #0c0c0b;
+  --color-bg-main: #141413;
+  --color-card: #1c1b18;
+  --color-border: #2a2825;
+  --color-accent: #d97757;
+  --color-text-primary: #f0efea;
+  --color-text-secondary: #a39f97;
+  --color-code-text: #d97757;
+
+  --font-heading: var(--font-newsreader), "Newsreader", serif;
+  --font-body: var(--font-plus-jakarta-sans), "Plus Jakarta Sans", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", monospace;
+
+  --radius-card: 12px;
+}
+
+.light {
+  --color-bg-page: #fafaf8;
+  --color-bg-main: #f2f0eb;
+  --color-card: #ffffff;
+  --color-border: #e3e1da;
+  --color-accent: #d97757;
+  --color-text-primary: #1b1a17;
+  --color-text-secondary: #6b675f;
+  --color-code-text: #d97757;
+}
+
+body {
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-heading);
+}
+
+code, pre {
+  font-family: var(--font-mono);
+  color: var(--color-code-text);
+}

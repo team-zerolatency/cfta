@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    transpilePackages: ["@repo/ui"],
+    transpilePackages: ["@cfta/ui"],
 };
 
 export default nextConfig;
