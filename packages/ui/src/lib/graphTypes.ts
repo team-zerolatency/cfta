@@ -1,23 +1,6 @@
-export type GraphNode = {
-  id: string;
-  depth: number;
-  isStartNode: boolean;
-};
+import type { GraphNode } from "@cfta/types";
 
-export type GraphEdge = {
-  id: string;
-  source: string;
-  target: string;
-  amount: number;
-  tokenSymbol: string;
-  timestamp: number;
-};
-
-export type TraceResult = {
-  nodes: GraphNode[];
-  edges: GraphEdge[];
-  truncated: boolean;
-};
+export type { GraphNode, GraphEdge, TraceResult, RiskFlag } from "@cfta/types";
 
 export type PositionedNode = GraphNode & {
   x: number;
