@@ -10,7 +10,7 @@ import {
   type Edge,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { layoutGraphByDepth, shortenAddress } from "./lib/layoutGraph";
+import { layoutGraphWithDagre, shortenAddress } from "./lib/layoutGraph";
 import type { TraceResult } from "./lib/graphTypes";
 
 type GraphViewProps = {
@@ -22,7 +22,7 @@ export function GraphView({ trace, flaggedAddresses = [] }: GraphViewProps) {
   const flaggedSet = useMemo(() => new Set(flaggedAddresses), [flaggedAddresses]);
 
   const nodes: Node[] = useMemo(() => {
-    const positioned = layoutGraphByDepth(trace.nodes);
+    const positioned = layoutGraphWithDagre(trace.nodes, trace.edges);
 
     return positioned.map((n) => {
       const isFlagged = flaggedSet.has(n.id);
@@ -47,7 +47,7 @@ export function GraphView({ trace, flaggedAddresses = [] }: GraphViewProps) {
         },
       };
     });
-  }, [trace.nodes, flaggedSet]);
+  }, [trace.nodes, trace.edges, flaggedSet]);
 
   const edges: Edge[] = useMemo(
     () =>

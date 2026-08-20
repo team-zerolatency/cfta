@@ -1,19 +1,40 @@
-import type { GraphNode, PositionedNode } from "./graphTypes";
+import dagre from "@dagrejs/dagre";
+import type { GraphEdge, GraphNode, PositionedNode } from "./graphTypes";
 
-const COLUMN_WIDTH = 260;
-const ROW_HEIGHT = 110;
+const NODE_WIDTH = 160;
+const NODE_HEIGHT = 44;
 
-export function layoutGraphByDepth(nodes: GraphNode[]): PositionedNode[] {
-  const countPerDepth: Record<number, number> = {};
+export function layoutGraphWithDagre(
+  nodes: GraphNode[],
+  edges: GraphEdge[]
+): PositionedNode[] {
+  const g = new dagre.graphlib.Graph();
+  g.setGraph({
+    rankdir: "LR",
+    nodesep: 40,
+    ranksep: 120,
+    marginx: 20,
+    marginy: 20,
+  });
+  g.setDefaultEdgeLabel(() => ({}));
+
+  for (const node of nodes) {
+    g.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT });
+  }
+  for (const edge of edges) {
+    if (g.hasNode(edge.source) && g.hasNode(edge.target)) {
+      g.setEdge(edge.source, edge.target);
+    }
+  }
+
+  dagre.layout(g);
 
   return nodes.map((node) => {
-    const rowIndex = countPerDepth[node.depth] ?? 0;
-    countPerDepth[node.depth] = rowIndex + 1;
-
+    const pos = g.node(node.id);
     return {
       ...node,
-      x: node.depth * COLUMN_WIDTH,
-      y: rowIndex * ROW_HEIGHT,
+      x: pos.x - NODE_WIDTH / 2,
+      y: pos.y - NODE_HEIGHT / 2,
     };
   });
 }
