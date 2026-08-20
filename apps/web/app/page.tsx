@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { StatusCard, ThemeToggle, TraceInput, GraphView, type TraceResult } from "@cfta/ui";
+import {
+  StatusCard,
+  ThemeToggle,
+  TraceInput,
+  GraphView,
+  RiskBadge,
+  type TraceResult,
+} from "@cfta/ui";
 import { buildTraceApiUrl } from "../lib/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
@@ -30,6 +37,11 @@ export default function Home() {
       setLoading(false);
     }
   }
+
+  const allFlags =
+    trace?.nodes.flatMap((node) =>
+      node.riskFlags.map((flag) => ({ flag, walletId: node.id }))
+    ) ?? [];
 
   return (
     <>
@@ -65,6 +77,19 @@ export default function Home() {
             </div>
 
             <GraphView trace={trace} />
+
+            {allFlags.length > 0 && (
+              <div className="flex flex-col gap-3">
+                <h2 className="font-heading text-lg font-bold text-text-primary">
+                  Flags ({allFlags.length})
+                </h2>
+                <div className="flex flex-col gap-2">
+                  {allFlags.map(({ flag, walletId }, i) => (
+                    <RiskBadge key={`${walletId}-${flag.type}-${i}`} flag={flag} walletId={walletId} />
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </main>
