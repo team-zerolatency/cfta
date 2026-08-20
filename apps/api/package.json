@@ -16,6 +16,8 @@
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
+    "@cfta/database": "workspace:*",
+    "@cfta/types": "workspace:*",
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.0",

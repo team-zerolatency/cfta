@@ -33,6 +33,12 @@ importers:
         specifier: ^5.1.0
         version: 5.2.1
     devDependencies:
+      '@cfta/database':
+        specifier: workspace:*
+        version: link:../../packages/database
+      '@cfta/types':
+        specifier: workspace:*
+        version: link:../../packages/types
       '@repo/typescript-config':
         specifier: workspace:*
         version: link:../../packages/typescript-config
@@ -174,6 +180,8 @@ importers:
         specifier: ^8.50.0
         version: 8.50.0(eslint@9.39.1(jiti@2.7.0))(typescript@5.9.2)
 
+  packages/types: {}
+
   packages/typescript-config: {}
 
   packages/ui:
@@ -191,6 +199,9 @@ importers:
         specifier: ^19.2.0
         version: 19.2.0(react@19.2.0)
     devDependencies:
+      '@cfta/types':
+        specifier: workspace:*
+        version: link:../types
       '@repo/eslint-config':
         specifier: workspace:*
         version: link:../eslint-config
