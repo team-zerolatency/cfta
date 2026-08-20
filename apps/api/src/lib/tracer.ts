@@ -1,4 +1,5 @@
 import type {
+  CheckExchangeWallet,
   FetchOutgoingTransfers,
   GraphEdge,
   GraphNode,
@@ -12,51 +13,54 @@ const DEFAULT_OPTIONS: Required<TraceOptions> = {
   maxFanOutPerNode: 10,
 };
 
-/**
- * Walks the transaction graph outward from a starting wallet, hop by hop —
- * this is the "peeling chain" chase described in the problem statement.
- *
- * Breadth-first, not depth-first: we fully expand hop 1 for every wallet
- * before moving to hop 2. This matters for the demo — if TronGrid rate-limits
- * us partway through, a BFS trace still shows a complete, evenly-explored
- * picture up to whatever depth it got through, rather than one very deep
- * branch and nothing else.
- *
- * `fetchOutgoing` is injected rather than imported directly, so this
- * function can be unit-tested with a fake data source (see
- * scripts/test-tracer.ts) without hitting the real TronGrid API.
- */
 export async function traceWallet(
   startAddress: string,
   fetchOutgoing: FetchOutgoingTransfers,
+  checkExchange: CheckExchangeWallet,
   options: TraceOptions = {}
 ): Promise<TraceResult> {
   const opts = { ...DEFAULT_OPTIONS, ...options };
 
   const visited = new Set<string>([startAddress]);
-  const nodes: GraphNode[] = [{ id: startAddress, depth: 0, isStartNode: true }];
+  const nodeByAddress = new Map<string, GraphNode>();
   const edges: GraphEdge[] = [];
 
-  let frontier = [startAddress];
+  async function makeNode(address: string, depth: number, isStartNode: boolean): Promise<GraphNode> {
+    const exchangeCheck = await checkExchange(address);
+    const node: GraphNode = {
+      id: address,
+      depth,
+      isStartNode,
+      isExchange: exchangeCheck.isExchange,
+      exchangeName: exchangeCheck.exchangeName,
+      riskFlags: [],
+    };
+    nodeByAddress.set(address, node);
+    return node;
+  }
+
+  const startNode = await makeNode(startAddress, 0, true);
+
+  let frontier: GraphNode[] = [startNode];
   let depth = 0;
   let truncated = false;
 
   while (frontier.length > 0 && depth < opts.maxDepth) {
-    const nextFrontier: string[] = [];
+    const nextFrontier: GraphNode[] = [];
 
-    for (const address of frontier) {
+    for (const node of frontier) {
       if (visited.size >= opts.maxNodes) {
         truncated = true;
         break;
       }
 
+      if (node.isExchange) continue;
+
       let transfers;
       try {
-        transfers = await fetchOutgoing(address);
+        transfers = await fetchOutgoing(node.id);
       } catch (err) {
-        // A single wallet failing to fetch (rate limit, bad address, etc.)
-        // shouldn't kill the whole trace — skip it and keep going.
-        console.error(`Failed to fetch transfers for ${address}:`, err);
+        console.error(`Failed to fetch transfers for ${node.id}:`, err);
         continue;
       }
 
@@ -74,13 +78,10 @@ export async function traceWallet(
           timestamp: t.blockTimestamp,
         });
 
-        // Cycle-safe: a wallet that already appeared anywhere in the trace
-        // is not re-visited or re-expanded — its edge is still recorded
-        // (so the loop is visible in the graph), it's just not walked again.
         if (!visited.has(t.to) && visited.size < opts.maxNodes) {
           visited.add(t.to);
-          nodes.push({ id: t.to, depth: depth + 1, isStartNode: false });
-          nextFrontier.push(t.to);
+          const childNode = await makeNode(t.to, depth + 1, false);
+          nextFrontier.push(childNode);
         }
       }
     }
@@ -93,5 +94,9 @@ export async function traceWallet(
     truncated = true;
   }
 
-  return { nodes, edges, truncated };
+  return {
+    nodes: Array.from(nodeByAddress.values()),
+    edges,
+    truncated,
+  };
 }

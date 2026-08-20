@@ -1,6 +1,8 @@
 import { Router } from "express";
 import { getOutgoingTrc20Transfers } from "../lib/tron.js";
 import { traceWallet } from "../lib/tracer.js";
+import { checkExchangeWallet } from "../lib/exchangeRegistry.js";
+import { evaluateNode } from "../lib/heuristics.js";
 
 export const traceRouter: Router = Router();
 
@@ -19,9 +21,14 @@ traceRouter.get("/:address", async (req, res) => {
   }
 
   try {
-    const result = await traceWallet(address, getOutgoingTrc20Transfers, {
+    const result = await traceWallet(address, getOutgoingTrc20Transfers, checkExchangeWallet, {
       maxDepth: depth,
     });
+
+    for (const node of result.nodes) {
+      node.riskFlags = evaluateNode(node, result.edges);
+    }
+
     res.json(result);
   } catch (err) {
     console.error("Trace failed:", err);
