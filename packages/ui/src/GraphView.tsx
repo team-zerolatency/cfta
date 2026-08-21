@@ -12,6 +12,7 @@ type GraphViewProps = {
 
 function getNodeBorderColor(node: GraphNode): string {
   if (node.isStartNode) return "var(--color-accent)";
+  if (node.riskFlags.some((f) => f.type === "cross-case-match")) return "#f59e0b";
   if (node.riskFlags.some((f) => f.type === "rapid-peeling")) return "#dc2626";
   if (node.isExchange) return "#2dd4bf";
   return "var(--color-border)";

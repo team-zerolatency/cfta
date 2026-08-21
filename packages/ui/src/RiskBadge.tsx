@@ -9,6 +9,7 @@ type RiskBadgeProps = {
 const FLAG_STYLES: Record<RiskFlag["type"], { dot: string; label: string }> = {
   "rapid-peeling": { dot: "#dc2626", label: "RISK" },
   "exchange-deposit": { dot: "#2dd4bf", label: "OFF-RAMP" },
+  "cross-case-match": { dot: "#f59e0b", label: "CROSS-CASE" },
 };
 
 export function RiskBadge({ flag, walletId }: RiskBadgeProps) {
