@@ -1,5 +1,5 @@
 export type RiskFlag = {
-  type: "rapid-peeling" | "exchange-deposit";
+  type: "rapid-peeling" | "exchange-deposit" | "cross-case-match";
   reason: string;
 };
 
