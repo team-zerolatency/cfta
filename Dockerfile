@@ -3,6 +3,7 @@ RUN apk add --no-cache libc6-compat curl
 WORKDIR /app
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
+ENV HOSTNAME="0.0.0.0"
 RUN corepack enable && corepack prepare pnpm@9.0.0 --activate
 
 # ==========================================
@@ -21,6 +22,7 @@ RUN pnpm --filter=api build
 
 ENV NODE_ENV=production
 ENV PORT=4000
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 4000
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=5s CMD curl -f http://localhost:4000/health || exit 1
@@ -43,6 +45,7 @@ RUN pnpm --filter=web build
 
 ENV NODE_ENV=production
 ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 EXPOSE 3000
 
 HEALTHCHECK --interval=10s --timeout=5s --start-period=10s CMD curl -f http://localhost:3000/ || exit 1
