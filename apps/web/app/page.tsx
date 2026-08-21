@@ -8,6 +8,7 @@ import {
   GraphView,
   RiskBadge,
   FlagWalletForm,
+  ExportButton,
   type TraceResult,
   type FlagWalletSubmission,
 } from "@cfta/ui";
@@ -118,6 +119,7 @@ export default function Home() {
             </div>
 
             <GraphView trace={trace} />
+            <ExportButton trace={trace} apiBaseUrl={API_BASE_URL} />
 
             {allFlags.length > 0 && (
               <div className="flex flex-col gap-3">

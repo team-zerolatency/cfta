@@ -21,36 +21,54 @@ function getNodeBorderColor(node: GraphNode): string {
 export function GraphView({ trace }: GraphViewProps) {
   const nodes: Node[] = useMemo(() => {
     const positioned = layoutGraphWithDagre(trace.nodes, trace.edges);
+    const seenNodeIds = new Set<string>();
+    const uniqueNodes: Node[] = [];
 
-    return positioned.map((n) => ({
-      id: n.id,
-      position: { x: n.x, y: n.y },
-      data: { label: shortenAddress(n.id) },
-      style: {
-        background: "var(--color-card)",
-        color: "var(--color-text-primary)",
-        border: `2px solid ${getNodeBorderColor(n)}`,
-        borderRadius: "var(--radius-card)",
-        fontFamily: "var(--font-mono)",
-        fontSize: "11px",
-        padding: "8px 12px",
-      },
-    }));
+    for (const n of positioned) {
+      if (!seenNodeIds.has(n.id)) {
+        seenNodeIds.add(n.id);
+        uniqueNodes.push({
+          id: n.id,
+          position: { x: n.x, y: n.y },
+          data: { label: shortenAddress(n.id) },
+          style: {
+            background: "var(--color-card)",
+            color: "var(--color-text-primary)",
+            border: `2px solid ${getNodeBorderColor(n)}`,
+            borderRadius: "var(--radius-card)",
+            fontFamily: "var(--font-mono)",
+            fontSize: "11px",
+            padding: "8px 12px",
+          },
+        });
+      }
+    }
+
+    return uniqueNodes;
   }, [trace.nodes, trace.edges]);
 
-  const edges: Edge[] = useMemo(
-    () =>
-      trace.edges.map((e) => ({
-        id: e.id,
-        source: e.source,
-        target: e.target,
-        label: `${e.amount.toLocaleString()} ${e.tokenSymbol}`,
-        animated: true,
-        style: { stroke: "var(--color-accent)" },
-        labelStyle: { fill: "var(--color-text-secondary)", fontSize: 10 },
-      })),
-    [trace.edges]
-  );
+  const edges: Edge[] = useMemo(() => {
+    const seenEdgeIds = new Set<string>();
+    const uniqueEdges: Edge[] = [];
+
+    trace.edges.forEach((e, idx) => {
+      const edgeId = e.id ? `edge-${e.id}-${idx}` : `edge-${e.source}-${e.target}-${idx}`;
+      if (!seenEdgeIds.has(edgeId)) {
+        seenEdgeIds.add(edgeId);
+        uniqueEdges.push({
+          id: edgeId,
+          source: e.source,
+          target: e.target,
+          label: `${e.amount.toLocaleString()} ${e.tokenSymbol}`,
+          animated: true,
+          style: { stroke: "var(--color-accent)" },
+          labelStyle: { fill: "var(--color-text-secondary)", fontSize: 10 },
+        });
+      }
+    });
+
+    return uniqueEdges;
+  }, [trace.edges]);
 
   return (
     <div className="w-full h-[500px] rounded-card border border-border overflow-hidden">
