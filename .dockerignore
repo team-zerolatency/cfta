@@ -1,0 +1,47 @@
+# Node dependencies & caches
+node_modules
+**/node_modules
+.pnp
+.pnp.js
+
+# Build outputs
+.next
+**/.next
+dist
+**/dist
+out
+**/out
+build
+**/build
+
+# Turborepo & Vercel
+.turbo
+**/.turbo
+.vercel
+
+# Git & IDEs
+.git
+.gitignore
+.vscode
+.idea
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs & Environment
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+.env
+.env*.local
+
+# Docker & CI
+Dockerfile*
+docker-compose*.yml
+.github
+
+# Documentation & Markdown
+README.md
+*.md
