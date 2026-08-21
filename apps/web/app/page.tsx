@@ -7,9 +7,11 @@ import {
   TraceInput,
   GraphView,
   RiskBadge,
+  FlagWalletForm,
   type TraceResult,
+  type FlagWalletSubmission,
 } from "@cfta/ui";
-import { buildTraceApiUrl } from "../lib/api";
+import { buildTraceApiUrl, buildRegistryFlagUrl } from "../lib/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 
@@ -17,11 +19,14 @@ export default function Home() {
   const [trace, setTrace] = useState<TraceResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [flagging, setFlagging] = useState(false);
+  const [flagMessage, setFlagMessage] = useState<string | null>(null);
 
   async function handleTrace(address: string, depth: number) {
     setLoading(true);
     setError(null);
     setTrace(null);
+    setFlagMessage(null);
 
     try {
       const res = await fetch(buildTraceApiUrl(API_BASE_URL, address, depth));
@@ -38,10 +43,34 @@ export default function Home() {
     }
   }
 
+  async function handleFlagWallet(submission: FlagWalletSubmission) {
+  setFlagging(true);
+  setFlagMessage(null);
+
+  try {
+    const res = await fetch(buildRegistryFlagUrl(API_BASE_URL), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(submission),
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({}));
+      throw new Error(body.error || `Request failed (${res.status})`);
+    }
+    setFlagMessage(`Wallet flagged to ${submission.firNumber}. Re-trace to see it surface.`);
+  } catch (err) {
+    setFlagMessage(err instanceof Error ? err.message : "Failed to flag wallet");
+  } finally {
+    setFlagging(false);
+  }
+}
+
   const allFlags =
     trace?.nodes.flatMap((node) =>
       node.riskFlags.map((flag) => ({ flag, walletId: node.id }))
     ) ?? [];
+  
+  const crossCaseFlags = allFlags.filter(({ flag }) => flag.type === "cross-case-match");
 
   return (
     <>
@@ -70,6 +99,18 @@ export default function Home() {
 
         {trace && (
           <>
+            {crossCaseFlags.length > 0 && (
+              <div className="rounded-card border border-amber-500/40 bg-amber-500/10 px-4 py-3">
+                <p className="font-mono text-xs font-bold tracking-widest text-amber-500">
+                  ⚠ CROSS-CASE MATCH
+                </p>
+                <p className="font-body text-sm text-text-primary mt-1">
+                  {crossCaseFlags.length === 1
+                    ? "A wallet in this trace was already flagged in a different case."
+                    : `${crossCaseFlags.length} wallets in this trace were already flagged in other cases.`}
+                </p>
+              </div>
+            )}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <StatusCard label="Wallets Found" value={String(trace.nodes.length)} />
               <StatusCard label="Transfers Traced" value={String(trace.edges.length)} />
@@ -89,6 +130,15 @@ export default function Home() {
                   ))}
                 </div>
               </div>
+            )}
+            <FlagWalletForm
+              onSubmit={handleFlagWallet}
+              loading={flagging}
+              defaultAddress={trace.nodes.find((n) => n.isStartNode)?.id}
+            />
+
+            {flagMessage && (
+              <p className="font-body text-sm text-text-secondary">{flagMessage}</p>
             )}
           </>
         )}
