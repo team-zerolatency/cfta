@@ -1,0 +1,39 @@
+name: CD Pipeline (Deploy to AWS EC2)
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            echo "Starting deployment on EC2..."
+            
+            # Navigate to project root folder on EC2
+            cd ~/cfta || cd /home/ubuntu/cfta || cd /var/www/cfta
+            
+            # Fetch and pull latest changes from main branch
+            git fetch origin main
+            git reset --hard origin/main
+            
+            # Ensure .env file exists on EC2 (copies template if missing)
+            if [ ! -f .env ]; then
+              cp .env.production.example .env
+            fi
+            
+            # Rebuild and restart Docker Compose services in detached mode
+            docker compose up -d --build
+            
+            # Clean up old unused Docker images to free up EC2 disk space
+            docker image prune -f
+            
+            echo "Deployment completed successfully!"
