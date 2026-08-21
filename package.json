@@ -2,13 +2,14 @@
   "name": "cfta",
   "private": true,
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "lint": "turbo run lint",
+    "dev": "dotenv -e .env -- turbo run dev",
+    "build": "dotenv -e .env -- turbo run build",
+    "lint": "dotenv -e .env -- turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"
   },
   "devDependencies": {
+    "dotenv-cli": "^11.0.0",
     "prettier": "^3.7.4",
     "turbo": "^2.10.11",
     "typescript": "5.9.2"

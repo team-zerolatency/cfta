@@ -4,16 +4,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate dev",
-    "db:deploy": "prisma migrate deploy",
-    "db:studio": "prisma studio"
+    "db:generate": "dotenv -e ../../.env -- prisma generate",
+    "db:migrate": "dotenv -e ../../.env -- prisma migrate dev",
+    "db:deploy": "dotenv -e ../../.env -- prisma migrate deploy",
+    "db:studio": "dotenv -e ../../.env -- prisma studio"
   },
   "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
     "@types/node": "^20.19.43",
     "@types/pg": "^8.23.1",
-    "@repo/typescript-config": "workspace:*",
     "dotenv": "^17.4.2",
+    "dotenv-cli": "^11.0.0",
     "prisma": "^7.9.1",
     "tsx": "^4.23.12",
     "typescript": "^5.9.2"
