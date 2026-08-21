@@ -45,3 +45,15 @@ export function evaluateNode(node: GraphNode, edges: GraphEdge[]): RiskFlag[] {
 
   return flags;
 }
+
+export function detectCrossCaseMatch(firNumbers: string[]): RiskFlag | null {
+  if (firNumbers.length === 0) return null;
+
+  return {
+    type: "cross-case-match",
+    reason:
+      firNumbers.length === 1
+        ? `This wallet was already flagged in case ${firNumbers[0]}`
+        : `This wallet was already flagged across ${firNumbers.length} cases: ${firNumbers.join(", ")}`,
+  };
+}

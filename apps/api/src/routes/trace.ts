@@ -2,7 +2,8 @@ import { Router } from "express";
 import { getOutgoingTrc20Transfers } from "../lib/tron.js";
 import { traceWallet } from "../lib/tracer.js";
 import { checkExchangeWallet } from "../lib/exchangeRegistry.js";
-import { evaluateNode } from "../lib/heuristics.js";
+import { checkCrossCaseWallet } from "../lib/registryLookup.js";
+import { evaluateNode, detectCrossCaseMatch } from "../lib/heuristics.js";
 
 export const traceRouter: Router = Router();
 
@@ -27,6 +28,10 @@ traceRouter.get("/:address", async (req, res) => {
 
     for (const node of result.nodes) {
       node.riskFlags = evaluateNode(node, result.edges);
+
+      const { firNumbers } = await checkCrossCaseWallet(node.id);
+      const crossCaseFlag = detectCrossCaseMatch(firNumbers);
+      if (crossCaseFlag) node.riskFlags.push(crossCaseFlag);
     }
 
     res.json(result);

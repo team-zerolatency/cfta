@@ -22,3 +22,5 @@ export type FetchOutgoingTransfers = (address: string) => Promise<Trc20Transfer[
 export type CheckExchangeWallet = (
   address: string
 ) => Promise<{ isExchange: boolean; exchangeName?: string }>;
+
+export type CheckCrossCaseWallet = (address: string) => Promise<{ firNumbers: string[] }>;
