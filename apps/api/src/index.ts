@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import "dotenv/config";
 import { traceRouter } from "./routes/trace.js";
+import { exportRouter } from "./routes/export.js";
 import { registryRouter } from "./routes/registry.js";
 
 const app = express();
@@ -14,6 +15,7 @@ app.get("/health", (_req, res) => {
 
 app.use("/trace", traceRouter);
 app.use("/registry", registryRouter);
+app.use("/export", exportRouter);
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
