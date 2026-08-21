@@ -7,7 +7,7 @@ on:
     branches: [ main, master ]
 
 env:
-  DATABASE_URL: postgresql://cfta_user:cfta_secure_password@localhost:5432/cfta_db?schema=public
+  DATABASE_URL: postgresql://neondb_owner:npg_W0xjSe3AOMwi@ep-quiet-lab-ayzcu0ul-pooler.c-5.us-east-2.aws.neon.tech/neondb?sslmode=require&channel_binding=require
 
 jobs:
   quality:
@@ -43,7 +43,7 @@ jobs:
     needs: [ quality, build ]
     steps:
       - uses: actions/checkout@v4
-      - run: cp .env.example .env
+      - run: cp .env.production.example .env
       - run: docker compose up -d --build
       - run: sleep 10
       - run: curl -f http://localhost:4000/health
