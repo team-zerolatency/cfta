@@ -21,7 +21,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
 const SAMPLE_WALLETS = [
   {
     label: "EXAMPLE — MULTI-HOP CHAIN",
-    address: "TLyqzVGLV1srkB7dToTAEqgmafPtCQzy95",   // ← replace with a real address
+    address: "TJDENsfBJs4RFETt1X1W8wMDc8M5XnJhCe",   // ← replace with a real address
     note: "Traces several hops with real transfer history",
   },
   {
