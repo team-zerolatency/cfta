@@ -6,6 +6,7 @@ import {
   StatusCard,
   ThemeToggle,
   TraceInput,
+  SampleWalletsCard,
   GraphView,
   RiskBadge,
   FlagWalletForm,
@@ -16,6 +17,19 @@ import {
 import { buildTraceApiUrl, buildRegistryFlagUrl } from "../../lib/api";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+
+const SAMPLE_WALLETS = [
+  {
+    label: "EXAMPLE — MULTI-HOP CHAIN",
+    address: "TLyqzVGLV1srkB7dToTAEqgmafPtCQzy95",   // ← replace with a real address
+    note: "Traces several hops with real transfer history",
+  },
+  {
+    label: "EXAMPLE — KNOWN EXCHANGE DEPOSIT",
+    address: "TDqSquXBgUCLYvYC4XZgrprLK589dkhSCf",   // ← replace with a real address
+    note: "Ends in an off-ramp — shows the OFF-RAMP flag",
+  },
+];
 
 export default function TracePage() {
   const [trace, setTrace] = useState<TraceResult | null>(null);
@@ -95,6 +109,7 @@ export default function TracePage() {
         </div>
 
         <TraceInput onSubmit={handleTrace} loading={loading} />
+        <SampleWalletsCard wallets={SAMPLE_WALLETS}  />
 
         {error && (
           <div className="rounded-card border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-body text-red-400">

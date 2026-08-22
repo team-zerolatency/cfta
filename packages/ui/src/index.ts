@@ -6,4 +6,5 @@ export { RiskBadge } from "./RiskBadge";
 export { FlagWalletForm, type FlagWalletSubmission } from "./FlagWalletForm";
 export { ExportButton } from "./ExportButton";
 export { CopyButton } from "./CopyButton";
+export { SampleWalletsCard, type SampleWallet } from "./SampleWalletsCard";
 export type { TraceResult, GraphNode, GraphEdge, RiskFlag } from "./lib/graphTypes";
