@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { ReactFlow, Background, Controls, MiniMap, type Node, type Edge } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { layoutGraphWithDagre, shortenAddress } from "./lib/layoutGraph";
+import { layoutGraphWithDagre, shortenAddress, mergeEdgesForDisplay } from "./lib/layoutGraph";
 import type { TraceResult, GraphNode } from "./lib/graphTypes";
 
 type GraphViewProps = {
@@ -48,27 +48,21 @@ export function GraphView({ trace }: GraphViewProps) {
   }, [trace.nodes, trace.edges]);
 
   const edges: Edge[] = useMemo(() => {
-    const seenEdgeIds = new Set<string>();
-    const uniqueEdges: Edge[] = [];
+  const merged = mergeEdgesForDisplay(trace.edges);
 
-    trace.edges.forEach((e, idx) => {
-      const edgeId = e.id ? `edge-${e.id}-${idx}` : `edge-${e.source}-${e.target}-${idx}`;
-      if (!seenEdgeIds.has(edgeId)) {
-        seenEdgeIds.add(edgeId);
-        uniqueEdges.push({
-          id: edgeId,
-          source: e.source,
-          target: e.target,
-          label: `${e.amount.toLocaleString()} ${e.tokenSymbol}`,
-          animated: true,
-          style: { stroke: "var(--color-accent)" },
-          labelStyle: { fill: "var(--color-text-secondary)", fontSize: 10 },
-        });
-      }
-    });
-
-    return uniqueEdges;
-  }, [trace.edges]);
+  return merged.map((e) => ({
+    id: e.id,
+    source: e.source,
+    target: e.target,
+    label:
+      e.transferCount > 1
+        ? `${e.transferCount}× · ${e.totalAmount.toLocaleString()} ${e.tokenSymbol} total`
+        : `${e.totalAmount.toLocaleString()} ${e.tokenSymbol}`,
+    animated: true,
+    style: { stroke: "var(--color-accent)" },
+    labelStyle: { fill: "var(--color-text-secondary)", fontSize: 10 },
+  }));
+}, [trace.edges]);
 
   return (
     <div className="w-full h-[500px] rounded-card border border-border overflow-hidden">
