@@ -1,5 +1,6 @@
 import type { RiskFlag } from "@cfta/types";
 import { shortenAddress } from "./lib/layoutGraph";
+import { CopyButton } from "./CopyButton";
 
 type RiskBadgeProps = {
   flag: RiskFlag;
@@ -24,7 +25,12 @@ export function RiskBadge({ flag, walletId }: RiskBadgeProps) {
             {style.label}
           </span>
           {walletId && (
-            <span className="font-mono text-[10px] text-text-secondary">{shortenAddress(walletId)}</span>
+            <span className="flex items-center gap-1">
+              <span className="font-mono text-[10px] text-text-secondary">
+                {shortenAddress(walletId)}
+              </span>
+              <CopyButton value={walletId} />
+            </span>
           )}
         </div>
         <p className="font-body text-sm text-text-primary">{flag.reason}</p>
