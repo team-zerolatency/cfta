@@ -1,150 +1,169 @@
-"use client";
+import Link from "next/link";
+import { ThemeToggle } from "@cfta/ui";
 
-import { useState } from "react";
-import {
-  StatusCard,
-  ThemeToggle,
-  TraceInput,
-  GraphView,
-  RiskBadge,
-  FlagWalletForm,
-  ExportButton,
-  type TraceResult,
-  type FlagWalletSubmission,
-} from "@cfta/ui";
-import { buildTraceApiUrl, buildRegistryFlagUrl } from "../lib/api";
+const PILLARS = [
+  {
+    title: "TRACK",
+    body: "Enter a wallet address or tx hash. The engine recursively walks outgoing TRC-20 transfers hop by hop via the TronGrid API, rendering a live transaction graph.",
+  },
+  {
+    title: "FLAG",
+    body: "Every wallet touched is checked against a persistent risk registry — auto-tagged by rule-based heuristics, or manually tied to an FIR number by an officer.",
+  },
+  {
+    title: "ANALYZE",
+    body: "Cross-case correlation surfaces patterns: a wallet flagged in one FIR is instantly recognized if it resurfaces in a completely unrelated investigation.",
+  },
+];
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000";
+const FEATURES = [
+  {
+    title: "Live Multi-Hop Tracer",
+    body: "Interactive node-link graph of wallet-to-wallet fund movement, laid out automatically with dagre so dense exchange convergence never overlaps.",
+  },
+  {
+    title: "Off-Ramp Tagging",
+    body: "Auto-flags when funds land in a known exchange wallet — freeze-eligible under Section 94 BNSS.",
+  },
+  {
+    title: "Persistent Risk Registry",
+    body: "Flagged wallets stay flagged. Any future case touching one triggers an instant cross-case alert, automatically.",
+  },
+  {
+    title: "Rule-Based Heuristics",
+    body: "Detects rapid peeling and off-ramp deposits with explainable, plain-English reasons — no black-box scoring a court can't examine.",
+  },
+  {
+    title: "One-Click Evidence Export",
+    body: "Generates a structured PDF dossier: wallet list, transfer history, timestamps, and flag reasons, ready for case submission.",
+  },
+  {
+    title: "Built for Indian Cyber-Cells",
+    body: "Zero training curve, self-hostable on internal infrastructure — not a SaaS tool that never heard of an FIR number.",
+  },
+];
 
-export default function Home() {
-  const [trace, setTrace] = useState<TraceResult | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [flagging, setFlagging] = useState(false);
-  const [flagMessage, setFlagMessage] = useState<string | null>(null);
-
-  async function handleTrace(address: string, depth: number) {
-    setLoading(true);
-    setError(null);
-    setTrace(null);
-    setFlagMessage(null);
-
-    try {
-      const res = await fetch(buildTraceApiUrl(API_BASE_URL, address, depth));
-      if (!res.ok) {
-        const body = await res.json().catch(() => ({}));
-        throw new Error(body.error || `Request failed (${res.status})`);
-      }
-      const data: TraceResult = await res.json();
-      setTrace(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleFlagWallet(submission: FlagWalletSubmission) {
-  setFlagging(true);
-  setFlagMessage(null);
-
-  try {
-    const res = await fetch(buildRegistryFlagUrl(API_BASE_URL), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(submission),
-    });
-    if (!res.ok) {
-      const body = await res.json().catch(() => ({}));
-      throw new Error(body.error || `Request failed (${res.status})`);
-    }
-    setFlagMessage(`Wallet flagged to ${submission.firNumber}. Re-trace to see it surface.`);
-  } catch (err) {
-    setFlagMessage(err instanceof Error ? err.message : "Failed to flag wallet");
-  } finally {
-    setFlagging(false);
-  }
-}
-
-  const allFlags =
-    trace?.nodes.flatMap((node) =>
-      node.riskFlags.map((flag) => ({ flag, walletId: node.id }))
-    ) ?? [];
-  
-  const crossCaseFlags = allFlags.filter(({ flag }) => flag.type === "cross-case-match");
-
+export default function LandingPage() {
   return (
     <>
       <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 sm:p-6 border-b border-border">
         <span className="font-heading text-lg font-bold text-text-primary">CFTA</span>
-        <ThemeToggle />
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <Link
+            href="/trace"
+            className="rounded-card bg-accent px-4 py-2 text-sm font-mono font-bold text-bg-page hover:opacity-90 transition-opacity"
+          >
+            Try Live Demo →
+          </Link>
+        </div>
       </header>
 
-      <main className="flex-1 flex flex-col gap-6 p-4 sm:p-8 max-w-5xl mx-auto w-full">
-        <div className="text-center">
-          <h1 className="font-heading text-3xl sm:text-4xl font-bold text-text-primary">
-            Trace a Wallet
-          </h1>
-          <p className="font-body text-text-secondary mt-2 text-sm sm:text-base">
-            Enter a Tron (TRC-20) wallet address to trace its outgoing transaction chain.
+      <main className="flex-1">
+        {/* Hero */}
+        <section className="flex flex-col items-center text-center gap-6 px-4 sm:px-8 py-16 sm:py-24 max-w-4xl mx-auto">
+          <p className="font-mono text-xs tracking-widest text-accent">
+            CHANDIGARH POLICE HACKATHON 2026
           </p>
-        </div>
+          <h1 className="font-heading text-5xl sm:text-7xl font-bold text-text-primary">
+            CFTA
+          </h1>
+          <p className="font-heading text-xl sm:text-2xl italic text-text-secondary">
+            Crypto Flow & Fraud Analytics
+          </p>
+          <p className="font-body text-text-secondary text-base sm:text-lg max-w-2xl">
+            Track illicit crypto flow, flag fraudulent accounts, and analyze suspicious
+            transactions — a purpose-built investigation tool for Indian cyber-cells,
+            not a generic block explorer.
+          </p>
+          <Link
+            href="/trace"
+            className="mt-2 rounded-card bg-accent px-8 py-3 text-base font-mono font-bold text-bg-page hover:opacity-90 transition-opacity"
+          >
+            Try Live Demo →
+          </Link>
+        </section>
 
-        <TraceInput onSubmit={handleTrace} loading={loading} />
-
-        {error && (
-          <div className="rounded-card border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm font-body text-red-400">
-            {error}
+        {/* Problem */}
+        <section className="px-4 sm:px-8 py-12 border-t border-border">
+          <div className="max-w-5xl mx-auto flex flex-col gap-4">
+            <p className="font-mono text-xs tracking-widest text-accent">THE PROBLEM</p>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-text-primary">
+              Fraud money moves in minutes. Investigations take weeks.
+            </h2>
+            <p className="font-body text-text-secondary max-w-3xl">
+              Scam proceeds are converted to USDT and pushed through multiple wallets to
+              break the trail before a cyber-cell can respond. Enterprise forensic suites
+              exist, but they&apos;re expensive, complex, and built for global compliance
+              teams — not district-level police units working FIR by FIR.
+            </p>
           </div>
-        )}
+        </section>
 
-        {trace && (
-          <>
-            {crossCaseFlags.length > 0 && (
-              <div className="rounded-card border border-amber-500/40 bg-amber-500/10 px-4 py-3">
-                <p className="font-mono text-xs font-bold tracking-widest text-amber-500">
-                  ⚠ CROSS-CASE MATCH
-                </p>
-                <p className="font-body text-sm text-text-primary mt-1">
-                  {crossCaseFlags.length === 1
-                    ? "A wallet in this trace was already flagged in a different case."
-                    : `${crossCaseFlags.length} wallets in this trace were already flagged in other cases.`}
-                </p>
-              </div>
-            )}
+        {/* Solution — 3 pillars */}
+        <section className="px-4 sm:px-8 py-12 border-t border-border">
+          <div className="max-w-5xl mx-auto flex flex-col gap-6">
+            <p className="font-mono text-xs tracking-widest text-accent">THE APPROACH</p>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-text-primary">
+              Three pillars, one investigation tool
+            </h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <StatusCard label="Wallets Found" value={String(trace.nodes.length)} />
-              <StatusCard label="Transfers Traced" value={String(trace.edges.length)} />
-              <StatusCard label="Trace Status" value={trace.truncated ? "Depth limit hit" : "Fully resolved"} />
-            </div>
-
-            <GraphView trace={trace} />
-            <ExportButton trace={trace} apiBaseUrl={API_BASE_URL} />
-
-            {allFlags.length > 0 && (
-              <div className="flex flex-col gap-3">
-                <h2 className="font-heading text-lg font-bold text-text-primary">
-                  Flags ({allFlags.length})
-                </h2>
-                <div className="flex flex-col gap-2">
-                  {allFlags.map(({ flag, walletId }, i) => (
-                    <RiskBadge key={`${walletId}-${flag.type}-${i}`} flag={flag} walletId={walletId} />
-                  ))}
+              {PILLARS.map((p) => (
+                <div key={p.title} className="rounded-card border border-border bg-card p-5">
+                  <h3 className="font-heading text-xl font-bold text-text-primary mb-2">
+                    {p.title}
+                  </h3>
+                  <p className="font-body text-sm text-text-secondary">{p.body}</p>
                 </div>
-              </div>
-            )}
-            <FlagWalletForm
-              onSubmit={handleFlagWallet}
-              loading={flagging}
-              defaultAddress={trace.nodes.find((n) => n.isStartNode)?.id}
-            />
+              ))}
+            </div>
+          </div>
+        </section>
 
-            {flagMessage && (
-              <p className="font-body text-sm text-text-secondary">{flagMessage}</p>
-            )}
-          </>
-        )}
+        {/* Key features */}
+        <section className="px-4 sm:px-8 py-12 border-t border-border">
+          <div className="max-w-5xl mx-auto flex flex-col gap-6">
+            <p className="font-mono text-xs tracking-widest text-accent">WHAT IT DOES</p>
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-text-primary">
+              Key features
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {FEATURES.map((f) => (
+                <div key={f.title} className="rounded-card border border-border bg-card p-5">
+                  <h3 className="font-heading text-base font-bold text-text-primary mb-2">
+                    {f.title}
+                  </h3>
+                  <p className="font-body text-sm text-text-secondary">{f.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Final CTA */}
+        <section className="px-4 sm:px-8 py-16 border-t border-border text-center">
+          <div className="max-w-2xl mx-auto flex flex-col items-center gap-4">
+            <h2 className="font-heading text-2xl sm:text-3xl font-bold text-text-primary">
+              See it trace a real wallet
+            </h2>
+            <p className="font-body text-text-secondary">
+              No login, no setup — paste a Tron address and watch the graph build live.
+            </p>
+            <Link
+              href="/trace"
+              className="rounded-card bg-accent px-8 py-3 text-base font-mono font-bold text-bg-page hover:opacity-90 transition-opacity"
+            >
+              Try Live Demo →
+            </Link>
+          </div>
+        </section>
       </main>
+
+      <footer className="px-4 sm:px-8 py-6 border-t border-border text-center">
+        <p className="font-mono text-xs text-text-secondary">
+          CFTA — Chandigarh Police Hackathon 2026
+        </p>
+      </footer>
     </>
   );
 }
